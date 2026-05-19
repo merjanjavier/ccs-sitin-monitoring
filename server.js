@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const path = require('path');
-const { dbHelpers } = require('./database');
+const { dbHelpers, db } = require('./database');
 
 // Load environment variables
 dotenv.config();
@@ -37,13 +37,7 @@ app.get('/api/health', async (req, res) => {
   };
   
   try {
-    const { createClient } = require('@libsql/client');
-    const testDb = createClient({
-      url: process.env.TURSO_DATABASE_URL || 'file:ccs_database.db',
-      authToken: process.env.TURSO_AUTH_TOKEN || '',
-    });
-    
-    await testDb.execute('SELECT 1');
+    await db.execute('SELECT 1');
     report.database.connection = 'Successful';
   } catch (error) {
     report.status = 'unhealthy';
