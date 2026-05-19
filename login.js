@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function verifyToken(token) {
   try {
-    const response = await fetch('http://localhost:5501/api/profile', {
+    const response = await fetch('/api/profile', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -72,7 +72,7 @@ async function handleLogin() {
     loginButton.disabled = true;
 
     // Send login request
-    const response = await fetch('http://localhost:5501/api/login', {
+    const response = await fetch('/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

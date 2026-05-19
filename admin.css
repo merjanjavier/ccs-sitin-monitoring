@@ -115,10 +115,10 @@ body {
   margin: 0 auto;
 }
 
-/* Bottom Section with 2 Columns */
+/* Bottom Section with 3 Columns */
 .bottom-section {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 30px;
   margin-top: 30px;
 }

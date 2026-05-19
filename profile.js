@@ -61,7 +61,7 @@ async function loadUserData() {
   // Try to fetch fresh data from server
   if (token) {
     try {
-      const response = await fetch('http://localhost:5501/api/profile', {
+      const response = await fetch('/api/profile', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -135,7 +135,7 @@ async function loadUserData() {
 async function loadAnnouncements() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/announcements', {
+    const response = await fetch('/api/announcements', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -369,7 +369,7 @@ async function saveProfile() {
   console.log('Saving profile data:', userData);
 
   try {
-    const response = await fetch('http://localhost:5501/api/profile', {
+    const response = await fetch('/api/profile', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -472,7 +472,7 @@ function setupHistorySection() {
 async function loadHistory() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/student/history', {
+    const response = await fetch('/api/student/history', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -619,28 +619,25 @@ function setupReservationSection() {
     });
   }
   
-  const reservePcNumber = document.getElementById('reservePcNumber');
-  if (reservePcNumber) {
-    for (let i = 1; i <= 49; i++) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = `PC ${i}`;
-      reservePcNumber.appendChild(option);
-    }
-  }
-
   const reserveLab = document.getElementById('reserveLab');
+  const reservePcNumber = document.getElementById('reservePcNumber');
   const labSoftwareContainer = document.getElementById('labSoftwareContainer');
   const labSoftwareList = document.getElementById('labSoftwareList');
+  
   if (reserveLab && labSoftwareContainer && labSoftwareList) {
     reserveLab.addEventListener('change', async () => {
       const lab = reserveLab.value;
       if (!lab) {
         labSoftwareContainer.style.display = 'none';
+        if (reservePcNumber) {
+          reservePcNumber.innerHTML = '<option value="">-- Select PC --</option>';
+        }
         return;
       }
+      
+      // Fetch software listing
       try {
-        const response = await fetch(`http://localhost:5501/api/lab-software?lab=${lab}`);
+        const response = await fetch(`/api/lab-software?lab=${lab}`);
         const data = await response.json();
         if (data.success && data.software.length > 0) {
           labSoftwareList.innerHTML = data.software.map(sw => `<li>${sw.software_name}</li>`).join('');
@@ -651,6 +648,39 @@ function setupReservationSection() {
         }
       } catch (error) {
         console.error('Error fetching software:', error);
+      }
+
+      // Fetch and filter PC numbers dynamically
+      if (reservePcNumber) {
+        reservePcNumber.innerHTML = '<option value="">-- Select PC --</option>';
+        try {
+          const pcResponse = await fetch('/api/disabled-pcs');
+          const pcData = await pcResponse.json();
+          if (pcData.success) {
+            const disabledPCs = new Set(
+              pcData.disabledPCs
+                .filter(pc => String(pc.lab) === String(lab))
+                .map(pc => parseInt(pc.pc_number))
+            );
+            for (let i = 1; i <= 49; i++) {
+              if (!disabledPCs.has(i)) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `PC ${i}`;
+                reservePcNumber.appendChild(option);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error filtering reservation PCs:', error);
+          // Fallback to all 49 PCs
+          for (let i = 1; i <= 49; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `PC ${i}`;
+            reservePcNumber.appendChild(option);
+          }
+        }
       }
     });
   }
@@ -667,7 +697,7 @@ async function submitReservation() {
   const pcNumber = document.getElementById('reservePcNumber').value;
   
   try {
-    const response = await fetch('http://localhost:5501/api/student/reservations', {
+    const response = await fetch('/api/student/reservations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -702,7 +732,7 @@ async function submitReservation() {
 async function loadReservations() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/student/reservations', {
+    const response = await fetch('/api/student/reservations', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -786,7 +816,7 @@ async function cancelReservation(reservationId) {
   
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5501/api/student/reservations/${reservationId}/cancel`, {
+    const response = await fetch(`/api/student/reservations/${reservationId}/cancel`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -885,7 +915,7 @@ function openFeedbackModal(sitinId) {
      }
      
      try {
-       const response = await fetch('http://localhost:5501/api/student/feedback', {
+       const response = await fetch('/api/student/feedback', {
          method: 'POST',
          headers: {
            'Content-Type': 'application/json',
@@ -913,7 +943,7 @@ function openFeedbackModal(sitinId) {
    async function loadSitInSummary() {
      try {
        const token = localStorage.getItem('authToken');
-       const response = await fetch('http://localhost:5501/api/student/sessions', {
+       const response = await fetch('/api/student/sessions', {
          method: 'GET',
          headers: {
            'Authorization': `Bearer ${token}`
@@ -976,7 +1006,7 @@ function openFeedbackModal(sitinId) {
    async function loadSessions() {
      try {
        const token = localStorage.getItem('authToken');
-       const response = await fetch('http://localhost:5501/api/student/sessions', {
+       const response = await fetch('/api/student/sessions', {
          method: 'GET',
          headers: {
            'Authorization': `Bearer ${token}`
@@ -1088,7 +1118,7 @@ function openFeedbackModal(sitinId) {
    async function loadLeaderboard() {
      try {
        const token = localStorage.getItem('authToken');
-       const response = await fetch('http://localhost:5501/api/leaderboard', {
+       const response = await fetch('/api/leaderboard', {
          method: 'GET',
          headers: {
            'Authorization': `Bearer ${token}`

@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load initial data
   loadStatistics();
   loadAnnouncements();
+  loadDashboardLeaderboard();
 });
 
 function checkAdminAuth() {
@@ -32,7 +33,7 @@ function checkAdminAuth() {
 
 async function verifyAdminToken(token) {
   try {
-    const response = await fetch('http://localhost:5501/api/admin/statistics', {
+    const response = await fetch('/api/admin/statistics', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -130,6 +131,11 @@ function setupEventListeners() {
       if (sitinReportsSection) sitinReportsSection.style.display = 'none';
       if (feedbackReportsSection) feedbackReportsSection.style.display = 'none';
       if (reservationSection) reservationSection.style.display = 'none';
+      
+      const leaderboardSection = document.getElementById('leaderboardSection');
+      if (leaderboardSection) leaderboardSection.style.display = 'none';
+      
+      loadDashboardLeaderboard();
     });
   }
   
@@ -461,6 +467,18 @@ function setupEventListeners() {
     });
   }
 
+  // Leaderboard link
+  const leaderboardLink = document.getElementById('leaderboardLink');
+  const leaderboardSection = document.getElementById('leaderboardSection');
+  if (leaderboardLink && leaderboardSection) {
+    leaderboardLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      hideAllSections();
+      leaderboardSection.style.display = 'block';
+      loadLeaderboard();
+    });
+  }
+
   // Apply Filter button
   const applyFilterBtn = document.getElementById('applyFilterBtn');
   if (applyFilterBtn) {
@@ -555,6 +573,9 @@ function hideAllSections() {
   if (reservationSection) reservationSection.style.display = 'none';
   if (healthMonitorSection) healthMonitorSection.style.display = 'none';
   if (settingsSection) settingsSection.style.display = 'none';
+  
+  const leaderboardSection = document.getElementById('leaderboardSection');
+  if (leaderboardSection) leaderboardSection.style.display = 'none';
 }
 
 function toggleMobileMenu() {
@@ -575,7 +596,7 @@ function logout() {
 async function loadStatistics() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/statistics', {
+    const response = await fetch('/api/admin/statistics', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -747,7 +768,7 @@ function updateRadarLegend(languages, counts, colors, total) {
 async function loadAnnouncements() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/announcements', {
+    const response = await fetch('/api/admin/announcements', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -819,7 +840,7 @@ async function submitAnnouncement() {
   
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/announcements', {
+    const response = await fetch('/api/admin/announcements', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -883,7 +904,7 @@ async function searchStudentById() {
   
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5501/api/admin/students/${studentId}`, {
+    const response = await fetch(`/api/admin/students/${studentId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -922,7 +943,7 @@ async function searchStudentById() {
 async function loadStudents() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/students', {
+    const response = await fetch('/api/admin/students', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1005,7 +1026,7 @@ function deleteStudent(studentId) {
 async function deleteStudentById(studentId) {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5501/api/admin/students/${studentId}`, {
+    const response = await fetch(`/api/admin/students/${studentId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1030,7 +1051,7 @@ async function deleteStudentById(studentId) {
 async function resetAllSessions() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/students/reset-sessions', {
+    const response = await fetch('/api/admin/students/reset-sessions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1055,7 +1076,7 @@ async function resetAllSessions() {
 async function fetchStudentForSitIn(idNumber) {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5501/api/admin/students/${idNumber}`, {
+    const response = await fetch(`/api/admin/students/${idNumber}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1102,7 +1123,7 @@ async function submitSitIn() {
   
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/sitin', {
+    const response = await fetch('/api/admin/sitin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1141,6 +1162,56 @@ function clearSitInForm() {
   document.getElementById('sitinPurpose').value = '';
   document.getElementById('sitinLab').value = '';
   document.getElementById('sitinRemainingSessions').value = '';
+  const sitinPcSelect = document.getElementById('sitinPcNumber');
+  if (sitinPcSelect) {
+    sitinPcSelect.innerHTML = '<option value="">Select PC</option>';
+  }
+}
+
+// Dynamic populating and filtering of Sit-in PC dropdown based on selected Lab
+const sitinLabInput = document.getElementById('sitinLab');
+const sitinPcSelect = document.getElementById('sitinPcNumber');
+
+if (sitinLabInput && sitinPcSelect) {
+  sitinLabInput.addEventListener('input', updateSitInPcDropdown);
+  sitinLabInput.addEventListener('change', updateSitInPcDropdown);
+}
+
+async function updateSitInPcDropdown() {
+  const lab = sitinLabInput.value.trim();
+  sitinPcSelect.innerHTML = '<option value="">Select PC</option>';
+  
+  if (!lab) return;
+  
+  try {
+    const response = await fetch('/api/disabled-pcs');
+    const data = await response.json();
+    
+    if (data.success) {
+      const disabledPCs = new Set(
+        data.disabledPCs
+          .filter(pc => String(pc.lab) === String(lab))
+          .map(pc => parseInt(pc.pc_number))
+      );
+      
+      for (let i = 1; i <= 49; i++) {
+        if (!disabledPCs.has(i)) {
+          const option = document.createElement('option');
+          option.value = i;
+          option.textContent = `PC ${i}`;
+          sitinPcSelect.appendChild(option);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error filtering sit-in PCs:', error);
+    for (let i = 1; i <= 49; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `PC ${i}`;
+      sitinPcSelect.appendChild(option);
+    }
+  }
 }
 
 // Global variables for pagination
@@ -1152,7 +1223,7 @@ let sitInRecordsPerPage = 10;
 async function loadSitInRecords() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/sitin-records', {
+    const response = await fetch('/api/admin/sitin-records', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1285,7 +1356,7 @@ function completeSitIn(recordId) {
 async function completeSitInRecord(recordId) {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5501/api/admin/sitin-records/${recordId}/complete`, {
+    const response = await fetch(`/api/admin/sitin-records/${recordId}/complete`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1316,7 +1387,7 @@ let currentSitInPerPage = 10;
 async function loadCurrentSitInStudents() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/sitin-records', {
+    const response = await fetch('/api/admin/sitin-records', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1453,7 +1524,7 @@ let reportsPerPage = 10;
 async function loadSitInReports() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/sitin-records', {
+    const response = await fetch('/api/admin/sitin-records', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1667,15 +1738,89 @@ function exportToExcel() {
   document.body.removeChild(link);
 }
 
-// Export to PDF (using print dialog)
+// Export to PDF (real PDF file generation)
 function exportToPDF() {
   if (filteredReportsData.length === 0) {
     alert('No data to export');
     return;
   }
   
-  // Open print dialog which allows saving as PDF
-  printReport();
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape mode for wider table readability
+    
+    // Page Title
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(106, 13, 173); // Purple theme color
+    doc.text("CCS Sit-In Report", 14, 18);
+    
+    // Report Info
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleString()} | Total Records: ${filteredReportsData.length}`, 14, 25);
+    
+    // Table headers and data rows mapping
+    const headers = [['#', 'Student Name', 'ID Number', 'Purpose/Subject', 'Laboratory', 'Time In', 'Time Out', 'Date']];
+    const data = filteredReportsData.map((record, index) => {
+      const dateObj = new Date(record.timeIn);
+      const date = dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      const login = dateObj.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      const logout = record.timeOut ? new Date(record.timeOut).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'N/A';
+      
+      return [
+        index + 1,
+        record.name,
+        record.id_number,
+        record.purpose,
+        record.lab,
+        login,
+        logout,
+        date
+      ];
+    });
+    
+    // AutoTable creation
+    doc.autoTable({
+      head: headers,
+      body: data,
+      startY: 30,
+      theme: 'striped',
+      headStyles: {
+        fillColor: [106, 13, 173],
+        textColor: [255, 255, 255],
+        fontSize: 10,
+        fontStyle: 'bold',
+        halign: 'left'
+      },
+      styles: {
+        font: 'Helvetica',
+        fontSize: 9,
+        cellPadding: 4
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 250]
+      },
+      margin: { left: 14, right: 14 }
+    });
+    
+    doc.save(`CCS_SitIn_Report_${Date.now()}.pdf`);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('An error occurred while exporting the PDF. Falling back to print menu...');
+    printReport();
+  }
 }
 
 // Print Report
@@ -1765,7 +1910,7 @@ let reservationsPerPage = 10;
 async function loadAdminReservations() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/reservations', {
+    const response = await fetch('/api/admin/reservations', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1930,7 +2075,7 @@ async function approveReservation(reservationId) {
   
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5501/api/admin/reservations/${reservationId}/status`, {
+    const response = await fetch(`/api/admin/reservations/${reservationId}/status`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -1961,7 +2106,7 @@ async function cancelReservation(id) {
   
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5501/api/admin/reservations/${id}/status`, {
+    const response = await fetch(`/api/admin/reservations/${id}/status`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -1988,35 +2133,111 @@ async function cancelReservation(id) {
 async function loadHealthMonitor() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/sitin-records', {
+    
+    // Fetch active sit-ins
+    const sitinResponse = await fetch('/api/admin/sitin-records', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    const data = await response.json();
+    const sitinData = await sitinResponse.json();
     
-    if (data.success) {
+    // Fetch disabled PCs
+    const disabledResponse = await fetch('/api/disabled-pcs');
+    const disabledData = await disabledResponse.json();
+    
+    if (sitinData.success && disabledData.success) {
       const selectedLab = document.getElementById('healthMonitorLabSelect').value;
-      const activeSitins = data.records.filter(r => r.status === 'active' && String(r.lab) === String(selectedLab));
+      const activeSitins = sitinData.records.filter(r => r.status === 'active' && String(r.lab) === String(selectedLab));
       const occupiedPCs = new Set(activeSitins.map(r => parseInt(r.pc_number)).filter(pc => !isNaN(pc)));
+      
+      const disabledPCs = new Set();
+      disabledData.disabledPCs
+        .filter(pc => String(pc.lab) === String(selectedLab))
+        .forEach(pc => disabledPCs.add(parseInt(pc.pc_number)));
       
       const grid = document.getElementById('pcGrid');
       grid.innerHTML = '';
       
       for (let i = 1; i <= 49; i++) {
         const div = document.createElement('div');
-        div.style.padding = '15px';
+        div.style.padding = '15px 5px';
         div.style.textAlign = 'center';
         div.style.border = '1px solid #ddd';
         div.style.borderRadius = '8px';
-        div.style.backgroundColor = '#f9f9f9';
+        div.style.transition = 'all 0.3s ease';
+        div.style.cursor = 'pointer';
         
         const isOccupied = occupiedPCs.has(i);
-        const color = isOccupied ? '#F44336' : '#4CAF50';
+        const isDisabled = disabledPCs.has(i);
+        
+        let color = '#4CAF50'; // Green: Available
+        let statusText = 'Available';
+        let iconClass = 'fa-desktop';
+        
+        if (isOccupied) {
+          color = '#F44336'; // Red: Occupied
+          statusText = 'Occupied';
+          div.style.backgroundColor = '#ffebee';
+          div.style.borderColor = '#ffcdd2';
+        } else if (isDisabled) {
+          color = '#9E9E9E'; // Grey: Disabled
+          statusText = 'Disabled';
+          iconClass = 'fa-ban';
+          div.style.backgroundColor = '#eeeeee';
+          div.style.borderColor = '#e0e0e0';
+        } else {
+          div.style.backgroundColor = '#e8f5e9';
+          div.style.borderColor = '#c8e6c9';
+        }
         
         div.innerHTML = `
-          <i class="fa-solid fa-desktop" style="font-size: 24px; color: ${color};"></i>
-          <div style="margin-top: 5px; font-weight: bold;">PC ${i}</div>
+          <i class="fa-solid ${iconClass}" style="font-size: 24px; color: ${color};"></i>
+          <div style="margin-top: 5px; font-weight: bold; color: ${isDisabled ? '#757575' : '#333'};">PC ${i}</div>
+          <div style="font-size: 10px; font-weight: bold; color: ${color}; text-transform: uppercase; margin-top: 2px;">${statusText}</div>
         `;
+        
+        // Add click event for Admin to enable/disable
+        div.addEventListener('click', async () => {
+          if (isOccupied) {
+            alert(`PC ${i} is currently occupied by a student. Please complete their sit-in session before disabling this PC.`);
+            return;
+          }
+          
+          const action = isDisabled ? 'enable' : 'disable';
+          if (confirm(`Are you sure you want to ${action} PC ${i} in Lab ${selectedLab}?`)) {
+            try {
+              const res = await fetch('/api/admin/disabled-pcs/toggle', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ lab: selectedLab, pcNumber: i })
+              });
+              const resData = await res.json();
+              if (resData.success) {
+                // Reload monitor
+                loadHealthMonitor();
+              } else {
+                alert(resData.message || `Failed to ${action} PC`);
+              }
+            } catch (err) {
+              console.error(err);
+              alert(`Error toggling PC status`);
+            }
+          }
+        });
+        
+        // Premium hover micro-animations
+        div.addEventListener('mouseenter', () => {
+          div.style.transform = 'translateY(-3px)';
+          div.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+        });
+        div.addEventListener('mouseleave', () => {
+          div.style.transform = 'translateY(0)';
+          div.style.boxShadow = 'none';
+        });
+        
         grid.appendChild(div);
       }
     }
@@ -2028,7 +2249,7 @@ async function loadHealthMonitor() {
 // Settings
 async function loadSettings() {
   try {
-    const response = await fetch('http://localhost:5501/api/settings/reservations_enabled');
+    const response = await fetch('/api/settings/reservations_enabled');
     const data = await response.json();
     if (data.success) {
       document.getElementById('enableReservationsToggle').checked = (data.value === 'true');
@@ -2043,7 +2264,7 @@ if (enableReservationsToggle) {
   enableReservationsToggle.addEventListener('change', async function() {
     try {
       const token = localStorage.getItem('authToken');
-      await fetch('http://localhost:5501/api/admin/settings/reservations_enabled', {
+      await fetch('/api/admin/settings/reservations_enabled', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ value: this.checked ? 'true' : 'false' })
@@ -2058,7 +2279,7 @@ if (enableReservationsToggle) {
 async function loadSoftware() {
   const lab = document.getElementById('softwareLabSelect').value;
   try {
-    const response = await fetch(`http://localhost:5501/api/lab-software?lab=${lab}`);
+    const response = await fetch(`/api/lab-software?lab=${lab}`);
     const data = await response.json();
     const list = document.getElementById('softwareList');
     list.innerHTML = '';
@@ -2096,7 +2317,7 @@ if (addSoftwareBtn) {
     if (!softwareName) return;
     try {
       const token = localStorage.getItem('authToken');
-      await fetch('http://localhost:5501/api/admin/lab-software', {
+      await fetch('/api/admin/lab-software', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ lab, softwareName })
@@ -2113,7 +2334,7 @@ window.deleteSoftware = async function(id) {
   if (!confirm('Delete this software?')) return;
   try {
     const token = localStorage.getItem('authToken');
-    await fetch(`http://localhost:5501/api/admin/lab-software/${id}`, {
+    await fetch(`/api/admin/lab-software/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -2127,7 +2348,7 @@ window.deleteAnnouncement = async function(id) {
   if (!confirm('Are you sure you want to delete this announcement?')) return;
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:5501/api/admin/announcements/${id}`, {
+    const response = await fetch(`/api/admin/announcements/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -2152,7 +2373,7 @@ let feedbackPerPage = 10;
 async function loadFeedbackReports() {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch('http://localhost:5501/api/admin/feedback-reports', {
+    const response = await fetch('/api/admin/feedback-reports', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -2351,13 +2572,89 @@ function exportFeedbackToExcel() {
   document.body.removeChild(link);
 }
 
-// Export Feedback to PDF
+// Export Feedback to PDF (real PDF file generation)
 function exportFeedbackToPDF() {
   if (filteredFeedbackData.length === 0) {
     alert('No data to export');
     return;
   }
-  printFeedbackReport();
+  
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4'); // Portrait mode for feedback
+    
+    // Page Title
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(106, 13, 173); // Purple theme color
+    doc.text("CCS Feedback Report", 14, 18);
+    
+    // Report Info
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleString()} | Total Feedbacks: ${filteredFeedbackData.length}`, 14, 25);
+    
+    // Table headers and data rows mapping
+    const headers = [['#', 'Student Name', 'Lab', 'Purpose', 'Rating', 'Comments', 'Date']];
+    const data = filteredFeedbackData.map((record, index) => {
+      const dateObj = new Date(record.created_at);
+      const date = dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      
+      let ratingText = '';
+      for (let i = 0; i < 5; i++) {
+        ratingText += i < record.rating ? '★' : '☆';
+      }
+      
+      return [
+        index + 1,
+        record.name,
+        record.lab,
+        record.purpose,
+        `${record.rating}/5 (${ratingText})`,
+        record.comments || 'No comments',
+        date
+      ];
+    });
+    
+    // AutoTable creation
+    doc.autoTable({
+      head: headers,
+      body: data,
+      startY: 30,
+      theme: 'striped',
+      headStyles: {
+        fillColor: [106, 13, 173],
+        textColor: [255, 255, 255],
+        fontSize: 10,
+        fontStyle: 'bold',
+        halign: 'left'
+      },
+      styles: {
+        font: 'Helvetica',
+        fontSize: 9,
+        cellPadding: 4
+      },
+      columnStyles: {
+        4: { textColor: [255, 193, 7] }, // Star color styling (Gold)
+        5: { cellWidth: 'auto' }
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 250]
+      },
+      margin: { left: 14, right: 14 }
+    });
+    
+    doc.save(`CCS_Feedback_Report_${Date.now()}.pdf`);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('An error occurred while exporting the PDF. Falling back to print menu...');
+    printFeedbackReport();
+  }
 }
 
 // Print Feedback Report
@@ -2432,4 +2729,153 @@ function printFeedbackReport() {
   printWindow.document.write(html);
   printWindow.document.close();
   printWindow.print();
+}
+
+// Load Dashboard Leaderboard Preview
+async function loadDashboardLeaderboard() {
+  const container = document.getElementById('dashboardLeaderboardList');
+  if (!container) return;
+
+  try {
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
+    const response = await fetch('/api/leaderboard', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.leaderboard) {
+      displayDashboardLeaderboard(data.leaderboard);
+    } else {
+      container.innerHTML = '<div class="no-announcements">Failed to load leaderboard data</div>';
+    }
+  } catch (error) {
+    console.error('Error loading dashboard leaderboard:', error);
+    container.innerHTML = '<div class="no-announcements">Error loading leaderboard data</div>';
+  }
+}
+
+// Display Leaderboard on Dashboard Preview
+function displayDashboardLeaderboard(leaderboard) {
+  const container = document.getElementById('dashboardLeaderboardList');
+  if (!container) return;
+
+  if (leaderboard.length === 0) {
+    container.innerHTML = '<div class="no-announcements">No leaderboard records found</div>';
+    return;
+  }
+
+  let html = '';
+  leaderboard.slice(0, 10).forEach((user, index) => {
+    const rank = index + 1;
+    let rankBadge = '';
+    let borderStyle = '';
+    
+    if (rank === 1) {
+      rankBadge = '🥇';
+      borderStyle = 'border-left: 4px solid #ffd700;';
+    } else if (rank === 2) {
+      rankBadge = '🥈';
+      borderStyle = 'border-left: 4px solid #c0c0c0;';
+    } else if (rank === 3) {
+      rankBadge = '🥉';
+      borderStyle = 'border-left: 4px solid #cd7f32;';
+    } else {
+      rankBadge = `<span style="font-weight: bold; color: #666; width: 20px; display: inline-block;">#${rank}</span>`;
+      borderStyle = 'border-left: 4px solid #6a0dad;';
+    }
+
+    html += `
+      <div class="announcement-item" style="${borderStyle} padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          ${rankBadge}
+          <div>
+            <div style="font-weight: 600; color: #333; font-size: 14px;">${escapeHtml(user.name)}</div>
+            <div style="font-size: 12px; color: #666;">${escapeHtml(user.course)}</div>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-weight: 700; color: #6a0dad; font-size: 15px;">${user.totalHours || 0} hrs</div>
+          <div style="font-size: 11px; color: #999;">${user.sessions || 0} sessions</div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+// Load Detailed Leaderboard Page
+async function loadLeaderboard() {
+  const tableBody = document.getElementById('leaderboardTableBody');
+  if (tableBody) {
+    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;">Loading leaderboard data...</td></tr>';
+  }
+
+  try {
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken');
+    const response = await fetch('/api/leaderboard', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.leaderboard) {
+      displayLeaderboard(data.leaderboard);
+    } else {
+      if (tableBody) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: red;">Failed to load leaderboard data</td></tr>';
+      }
+    }
+  } catch (error) {
+    console.error('Error loading detailed leaderboard:', error);
+    if (tableBody) {
+      tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: red;">Error loading leaderboard data</td></tr>';
+    }
+  }
+}
+
+// Display Detailed Leaderboard Page Table
+function displayLeaderboard(leaderboard) {
+  const tableBody = document.getElementById('leaderboardTableBody');
+  if (!tableBody) return;
+
+  if (leaderboard.length === 0) {
+    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;">No leaderboard records found</td></tr>';
+    return;
+  }
+
+  let html = '';
+  leaderboard.forEach((user, index) => {
+    const rank = index + 1;
+    let rankDisplay = '';
+    
+    if (rank === 1) {
+      rankDisplay = '<span style="font-size: 20px; font-weight: bold; color: #ffd700;">🥇 1st</span>';
+    } else if (rank === 2) {
+      rankDisplay = '<span style="font-size: 18px; font-weight: bold; color: #c0c0c0;">🥈 2nd</span>';
+    } else if (rank === 3) {
+      rankDisplay = '<span style="font-size: 18px; font-weight: bold; color: #cd7f32;">🥉 3rd</span>';
+    } else {
+      rankDisplay = `<span style="font-weight: 600; color: #555; padding-left: 8px;">#${rank}</span>`;
+    }
+
+    html += `
+      <tr>
+        <td>${rankDisplay}</td>
+        <td><strong>${escapeHtml(user.name || 'N/A')}</strong></td>
+        <td><span style="background: #eef2f7; padding: 4px 8px; border-radius: 4px; font-weight: 500;">${escapeHtml(user.course || 'N/A')}</span></td>
+        <td><strong style="color: #6a0dad; font-size: 15px;">${user.totalHours || 0} hrs</strong></td>
+        <td><span style="color: #555;">${user.sessions || 0} sessions</span></td>
+      </tr>
+    `;
+  });
+
+  tableBody.innerHTML = html;
 }

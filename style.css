@@ -278,3 +278,234 @@ body{
         max-width: 150px;
     }
 }
+
+/* Premium Landing Page Leaderboard Styling */
+.landing-leaderboard-section {
+    padding: 80px 5%;
+    max-width: 1100px;
+    margin: 0 auto;
+    background-color: transparent;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.leaderboard-section-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.leaderboard-section-header h2 {
+    font-size: clamp(24px, 3.5vw, 36px);
+    color: #333;
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.leaderboard-section-header p {
+    font-size: clamp(14px, 1.8vw, 17px);
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+/* Podium Styles */
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 25px;
+    margin-bottom: 60px;
+    flex-wrap: wrap;
+}
+
+.podium-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    padding: 35px 25px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1;
+    min-width: 250px;
+    max-width: 320px;
+    border: 2px solid transparent;
+}
+
+.podium-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(106, 13, 173, 0.15);
+}
+
+/* Specific heights and elevations for podium */
+.podium-card.rank-1 {
+    min-height: 290px;
+    border-color: rgba(255, 215, 0, 0.4);
+    background: linear-gradient(to bottom, #fffef0, #ffffff);
+    z-index: 2;
+}
+
+.podium-card.rank-2 {
+    min-height: 250px;
+    border-color: rgba(192, 192, 192, 0.4);
+    z-index: 1;
+}
+
+.podium-card.rank-3 {
+    min-height: 230px;
+    border-color: rgba(205, 127, 50, 0.4);
+    z-index: 1;
+}
+
+/* Badges & Icons */
+.podium-crown {
+    font-size: 32px;
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2s infinite;
+}
+
+.podium-badge {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+.podium-rank-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.podium-card h3 {
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    color: #222;
+    font-size: 20px;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.podium-course {
+    font-size: 13px;
+    color: #666;
+    background-color: #f3f4f6;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.podium-hours {
+    font-size: 24px;
+    font-weight: 800;
+    color: #6a0dad;
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Ranks 4-10 Section */
+.rest-leaderboard-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+    padding: 40px;
+    margin-top: 40px;
+}
+
+.rest-leaderboard-container h3 {
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid #6a0dad;
+    padding-left: 15px;
+}
+
+.leaderboard-table-wrapper {
+    overflow-x: auto;
+}
+
+.landing-leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    text-align: left;
+}
+
+.landing-leaderboard-table th {
+    padding: 18px 15px;
+    color: #666;
+    font-weight: 600;
+    border-bottom: 2px solid #f3e8ff;
+}
+
+.landing-leaderboard-table td {
+    padding: 16px 15px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #444;
+    vertical-align: middle;
+}
+
+.landing-leaderboard-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.landing-leaderboard-table tbody tr:hover {
+    background-color: #faf5ff;
+}
+
+.rank-badge-small {
+    background-color: #f3e8ff;
+    color: #6a0dad;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.course-label {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-6px); }
+}
+
+/* Responsive Styles for Podium */
+@media screen and (max-width: 768px) {
+    .podium-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .podium-card {
+        width: 100%;
+        max-width: 400px;
+        min-height: auto !important;
+    }
+    
+    .podium-card.rank-1 {
+        order: -1; /* Place 1st at the top on mobile */
+    }
+    
+    .rest-leaderboard-container {
+        padding: 20px 15px;
+    }
+}
+

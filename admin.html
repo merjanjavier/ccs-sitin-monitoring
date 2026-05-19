@@ -31,7 +31,8 @@
         <a href="#" class="nav-link" id="sitinReportsLink">Sit-In Reports</a>
         <a href="#" class="nav-link" id="feedbackReportsLink">Feedback Reports</a>
         <a href="#" class="nav-link" id="reservationLink">Reservation</a>
-        <a href="#" class="nav-link" id="healthMonitorLink">Lab Health</a>
+        <a href="#" class="nav-link" id="healthMonitorLink">Lab Monitor</a>
+        <a href="#" class="nav-link" id="leaderboardLink">Leaderboard</a>
         <a href="#" class="nav-link" id="settingsLink">Settings</a>
         <button id="logoutBtn" class="logout-btn">Log Out</button>
       </div>
@@ -109,6 +110,21 @@
             <div id="announcementsList" class="announcements-list">
               <!-- Announcements will be loaded here -->
               <div class="no-announcements">No announcements yet</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Third Column: Dashboard Leaderboard Preview -->
+        <div class="column leaderboard-column">
+          <div class="card-header leaderboard-header" style="background-color: #6a0dad; display: flex; align-items: center; gap: 10px;">
+            <span class="announcement-icon"><i class="fa-solid fa-trophy" style="color: #FFD700;"></i></span>
+            <h2>Top Students Leaderboard</h2>
+          </div>
+          <div class="posted-announcements" style="border-top: none; flex: 1;">
+            <h3>Top Active Students</h3>
+            <div id="dashboardLeaderboardList" class="announcements-list" style="max-height: 480px;">
+              <!-- Leaderboard items will be loaded here -->
+              <div class="no-announcements">Loading leaderboard...</div>
             </div>
           </div>
         </div>
@@ -613,10 +629,10 @@
       </div>
     </div>
 
-    <!-- Laboratory Health Monitor Section -->
+    <!-- Laboratory Monitor Section -->
     <div id="healthMonitorSection" class="student-info-section" style="display: none;">
       <div class="section-header section-header-center">
-        <h2><i class="fa-solid fa-desktop"></i> Laboratory Health Monitor</h2>
+        <h2><i class="fa-solid fa-desktop"></i> Laboratory Monitor</h2>
       </div>
       <div class="student-info-content">
         <div class="reports-controls">
@@ -639,9 +655,36 @@
         <div class="legend-container" style="margin-bottom: 20px; display: flex; gap: 20px;">
           <div><i class="fa-solid fa-desktop" style="color: #4CAF50;"></i> Available</div>
           <div><i class="fa-solid fa-desktop" style="color: #F44336;"></i> Occupied</div>
+          <div><i class="fa-solid fa-ban" style="color: #9E9E9E;"></i> Disabled / Maintenance</div>
         </div>
         <div id="pcGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 800px; margin: 0 auto;">
           <!-- PCs will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Section -->
+    <div id="leaderboardSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center" style="background-color: #6a0dad; color: white;">
+        <h2><i class="fa-solid fa-trophy" style="color: #FFD700;"></i> Sit-In Leaderboard</h2>
+      </div>
+      <div class="student-info-content">
+        <div class="student-table-container">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Total Hours</th>
+                <th>Sessions Completed</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardTableBody">
+              <!-- Leaderboard detailed items will be loaded here -->
+              <tr><td colspan="5" style="text-align: center; padding: 30px;">Loading leaderboard data...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -701,6 +744,8 @@
       .slider.round:before { border-radius: 50%; }
     </style>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
     <script src="admin.js"></script>
   </body>
 </html>

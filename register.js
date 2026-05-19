@@ -78,7 +78,7 @@ async function handleRegister() {
     registerButton.disabled = true;
 
     // Send registration request
-    const response = await fetch('http://localhost:5501/api/register', {
+    const response = await fetch('/api/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -596,6 +596,16 @@ app.post('/api/admin/sitin', authenticateAdmin, async (req, res) => {
       });
     }
 
+    if (pcNumber) {
+      const isDisabled = await dbHelpers.isPCDisabled(lab, pcNumber);
+      if (isDisabled) {
+        return res.status(400).json({
+          success: false,
+          message: `PC ${pcNumber} in Lab ${lab} is currently disabled/out of order`
+        });
+      }
+    }
+
     // Get student
     const student = await dbHelpers.getUserByIdNumber(idNumber);
     
@@ -728,6 +738,16 @@ app.post('/api/student/reservations', authenticateToken, async (req, res) => {
         success: false, 
         message: 'All fields are required' 
       });
+    }
+
+    if (pcNumber) {
+      const isDisabled = await dbHelpers.isPCDisabled(lab, pcNumber);
+      if (isDisabled) {
+        return res.status(400).json({
+          success: false,
+          message: `PC ${pcNumber} in Lab ${lab} is currently disabled/out of order`
+        });
+      }
     }
 
     const result = await dbHelpers.createReservation(userId, lab, purpose, date, time, pcNumber);
@@ -1002,5 +1022,34 @@ app.put('/api/admin/settings/:key', authenticateAdmin, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error updating setting' });
+  }
+});
+
+// Disabled PC APIs
+app.get('/api/disabled-pcs', async (req, res) => {
+  try {
+    const disabledPCs = await dbHelpers.getDisabledPCs();
+    res.json({ success: true, disabledPCs });
+  } catch (error) {
+    console.error('Error fetching disabled PCs:', error);
+    res.status(500).json({ success: false, message: 'Server error fetching disabled PCs' });
+  }
+});
+
+app.post('/api/admin/disabled-pcs/toggle', authenticateAdmin, async (req, res) => {
+  try {
+    const { lab, pcNumber } = req.body;
+    if (!lab || !pcNumber) {
+      return res.status(400).json({ success: false, message: 'Lab and PC Number are required' });
+    }
+    const result = await dbHelpers.toggleDisabledPC(lab, pcNumber);
+    res.json({ 
+      success: true, 
+      disabled: result.disabled, 
+      message: `PC ${pcNumber} in Lab ${lab} ${result.disabled ? 'disabled' : 'enabled'} successfully` 
+    });
+  } catch (error) {
+    console.error('Error toggling disabled PC:', error);
+    res.status(500).json({ success: false, message: 'Server error toggling PC status' });
   }
 });

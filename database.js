@@ -134,6 +134,18 @@ async function initializeDatabase() {
     await db.execute(`INSERT OR IGNORE INTO settings (key, value) VALUES ('reservations_enabled', 'true')`);
     console.log('Settings table ready');
 
+    // Disabled PCs table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS disabled_pcs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        lab TEXT NOT NULL,
+        pc_number INTEGER NOT NULL,
+        UNIQUE(lab, pc_number)
+      )
+    `);
+    console.log('Disabled PCs table ready');
+
+
   } catch (error) {
     console.error('Error initializing database:', error);
   }
@@ -167,7 +179,7 @@ const dbHelpers = {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [idNumber, lastname, firstname, middlename, courseLevel, course, address, email, password]
     });
-    return { id: result.lastInsertRowid };
+    return { id: Number(result.lastInsertRowid) };
   },
 
   // Get all users
@@ -197,7 +209,7 @@ const dbHelpers = {
       sql: 'INSERT INTO announcements (title, content) VALUES (?, ?)',
       args: [title, content]
     });
-    return { id: result.lastInsertRowid };
+    return { id: Number(result.lastInsertRowid) };
   },
 
   // Get statistics
@@ -290,7 +302,7 @@ const dbHelpers = {
       sql: 'INSERT INTO sitin_records (user_id, language, purpose, pc_number) VALUES (?, ?, ?, ?)',
       args: [userId, purpose, lab, pcNumber || null]
     });
-    return { id: result.lastInsertRowid };
+    return { id: Number(result.lastInsertRowid) };
   },
 
   // Update student sessions
@@ -375,7 +387,7 @@ const dbHelpers = {
       sql: 'INSERT INTO reservations (user_id, lab, purpose, reservation_date, reservation_time, pc_number) VALUES (?, ?, ?, ?, ?, ?)',
       args: [userId, lab, purpose, date, time, pcNumber || null]
     });
-    return { id: result.lastInsertRowid };
+    return { id: Number(result.lastInsertRowid) };
   },
 
   // Get student's reservations
@@ -402,7 +414,7 @@ const dbHelpers = {
       sql: 'INSERT INTO feedback (user_id, sitin_id, rating, comment) VALUES (?, ?, ?, ?)',
       args: [userId, sitinId, rating, comment]
     });
-    return { id: result.lastInsertRowid };
+    return { id: Number(result.lastInsertRowid) };
   },
 
   // Get all feedback with student and sit-in details (for admin reports)
@@ -543,7 +555,7 @@ const dbHelpers = {
       sql: 'INSERT INTO lab_software (lab, software_name) VALUES (?, ?)',
       args: [lab, softwareName]
     });
-    return { id: result.lastInsertRowid };
+    return { id: Number(result.lastInsertRowid) };
   },
 
   deleteLabSoftware: async (id) => {
@@ -585,6 +597,40 @@ const dbHelpers = {
       console.error('Error fetching analytics:', error);
       return { mostUsedLab: 'Unknown', mostUsedPurpose: 'Unknown' };
     }
+  },
+
+  getDisabledPCs: async () => {
+    const { rows } = await db.execute('SELECT * FROM disabled_pcs');
+    return rows;
+  },
+
+  toggleDisabledPC: async (lab, pcNumber) => {
+    const { rows } = await db.execute({
+      sql: 'SELECT * FROM disabled_pcs WHERE lab = ? AND pc_number = ?',
+      args: [String(lab), parseInt(pcNumber)]
+    });
+
+    if (rows.length > 0) {
+      await db.execute({
+        sql: 'DELETE FROM disabled_pcs WHERE lab = ? AND pc_number = ?',
+        args: [String(lab), parseInt(pcNumber)]
+      });
+      return { disabled: false };
+    } else {
+      await db.execute({
+        sql: 'INSERT INTO disabled_pcs (lab, pc_number) VALUES (?, ?)',
+        args: [String(lab), parseInt(pcNumber)]
+      });
+      return { disabled: true };
+    }
+  },
+
+  isPCDisabled: async (lab, pcNumber) => {
+    const { rows } = await db.execute({
+      sql: 'SELECT COUNT(*) as count FROM disabled_pcs WHERE lab = ? AND pc_number = ?',
+      args: [String(lab), parseInt(pcNumber)]
+    });
+    return rows[0].count > 0;
   }
 };
 

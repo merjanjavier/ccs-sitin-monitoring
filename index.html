@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
     <title>CCS Sit-in Monitoring System</title>
@@ -37,7 +41,7 @@
     </div>
 
     <div class="main">
-      <div class="content">
+      <div class="content animate__animated animate__fadeInUp">
         <img
           src="./images/ucmainccslogo1.png"
           alt="CCS Logo"
@@ -48,9 +52,74 @@
         
         <div class="cta-buttons">
           <a href="Register.html" class="btn-primary">Get Started</a>
-          <a href="#about" class="btn-secondary">Learn More</a>
+          <a href="Login.html" class="btn-secondary">Log In</a>
         </div>
       </div>
     </div>
+
+    <!-- Leaderboard Section -->
+    <div class="landing-leaderboard-section">
+      <div class="leaderboard-section-header">
+        <h2><i class="fa-solid fa-trophy" style="color: #FFD700;"></i> CCS Top Sit-in Students</h2>
+        <p>Recognizing our most dedicated students in the laboratory sessions</p>
+      </div>
+
+      <!-- Top 3 Podium Container -->
+      <div class="podium-container">
+        <!-- 2nd Place -->
+        <div class="podium-card rank-2">
+          <div class="podium-badge">🥈</div>
+          <div class="podium-rank-label">2nd Place</div>
+          <h3 id="rank2-name">Loading...</h3>
+          <p id="rank2-course" class="podium-course">-</p>
+          <div class="podium-hours" id="rank2-hours">0 hrs</div>
+        </div>
+
+        <!-- 1st Place -->
+        <div class="podium-card rank-1">
+          <div class="podium-crown">👑</div>
+          <div class="podium-badge">🥇</div>
+          <div class="podium-rank-label">1st Place</div>
+          <h3 id="rank1-name">Loading...</h3>
+          <p id="rank1-course" class="podium-course">-</p>
+          <div class="podium-hours" id="rank1-hours">0 hrs</div>
+        </div>
+
+        <!-- 3rd Place -->
+        <div class="podium-card rank-3">
+          <div class="podium-badge">🥉</div>
+          <div class="podium-rank-label">3rd Place</div>
+          <h3 id="rank3-name">Loading...</h3>
+          <p id="rank3-course" class="podium-course">-</p>
+          <div class="podium-hours" id="rank3-hours">0 hrs</div>
+        </div>
+      </div>
+
+      <!-- Ranks 4-10 Container -->
+      <div class="rest-leaderboard-container">
+        <h3>Top 10 Rankings</h3>
+        <div class="leaderboard-table-wrapper">
+          <table class="landing-leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Hours Completed</th>
+                <th>Total Sessions</th>
+              </tr>
+            </thead>
+            <tbody id="restLeaderboardBody">
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 25px; color: #666;">Fetching rankings...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script connection -->
+    <script src="index.js"></script>
   </body>
 </html>
