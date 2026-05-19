@@ -100,6 +100,36 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
+// Health / Diagnostics Endpoint
+app.get('/api/health', async (req, res) => {
+  const report = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    database: {
+      configuredUrl: process.env.TURSO_DATABASE_URL ? 'Configured' : 'Missing',
+      configuredToken: process.env.TURSO_AUTH_TOKEN ? 'Configured' : 'Missing',
+      connection: 'Unknown'
+    }
+  };
+  
+  try {
+    const { createClient } = require('@libsql/client');
+    const testDb = createClient({
+      url: process.env.TURSO_DATABASE_URL || 'file:ccs_database.db',
+      authToken: process.env.TURSO_AUTH_TOKEN || '',
+    });
+    
+    await testDb.execute('SELECT 1');
+    report.database.connection = 'Successful';
+  } catch (error) {
+    report.status = 'unhealthy';
+    report.database.connection = 'Failed';
+    report.database.error = error.message;
+  }
+  
+  res.json(report);
+});
+
 // User Login
 app.post('/api/login', async (req, res) => {
   try {
