@@ -1,22 +1,56 @@
 const { createClient } = require('@libsql/client');
 const dotenv = require('dotenv');
+const os = require('os');
+const path = require('path');
 
 dotenv.config();
 
-// Create database connection with fallback
-const dbUrl = process.env.TURSO_DATABASE_URL || 'file:ccs_database.db';
-const dbAuthToken = process.env.TURSO_AUTH_TOKEN || '';
+let client;
+let usingFallback = false;
 
-const db = createClient({
-  url: dbUrl,
-  authToken: dbAuthToken,
-});
-
-if (dbUrl.startsWith('file:')) {
-  console.log('Connected to local SQLite file database');
-} else {
-  console.log('Connected to Turso cloud database');
+function initClient() {
+  // Use OS temporary directory to work cross-platform (Windows / Linux / Vercel)
+  const fallbackPath = path.join(os.tmpdir(), 'ccs_local_fallback.db');
+  const url = (!usingFallback && process.env.TURSO_DATABASE_URL) ? process.env.TURSO_DATABASE_URL : `file:${fallbackPath}`;
+  const authToken = (!usingFallback && process.env.TURSO_AUTH_TOKEN) ? process.env.TURSO_AUTH_TOKEN : '';
+  
+  client = createClient({ url, authToken });
+  console.log(`Database client configured for: ${url.startsWith('file:') ? `Local Fallback (${fallbackPath})` : 'Turso Cloud'}`);
 }
+
+initClient();
+
+const db = {
+  execute: async (options) => {
+    try {
+      return await client.execute(options);
+    } catch (error) {
+      if (!usingFallback && (error.message.includes('401') || error.message.includes('unauthorized') || error.message.includes('SERVER_ERROR') || error.message.includes('libsql'))) {
+        console.error('Database connection failed. Switching to local fallback database...', error.message);
+        usingFallback = true;
+        initClient();
+        await initializeDatabase();
+        return await client.execute(options);
+      }
+      throw error;
+    }
+  },
+  batch: async (stmts, mode) => {
+    try {
+      return await client.batch(stmts, mode);
+    } catch (error) {
+      if (!usingFallback && (error.message.includes('401') || error.message.includes('unauthorized') || error.message.includes('SERVER_ERROR') || error.message.includes('libsql'))) {
+        console.error('Database connection failed. Switching to local fallback database...', error.message);
+        usingFallback = true;
+        initClient();
+        await initializeDatabase();
+        return await client.batch(stmts, mode);
+      }
+      throw error;
+    }
+  }
+};
+
 initializeDatabase();
 
 // Initialize database tables
