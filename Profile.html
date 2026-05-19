@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="Profile.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <title>CCS Dashboard - Profile</title>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <div class="nav">
+      <div class="logo">
+        <p class="dashboard-text">Dashboard</p>
+      </div>
+
+      <div class="links">
+        <!-- Notification Dropdown -->
+        <div class="notification-dropdown">
+          <a href="#" class="notification-link" id="notificationBtn">
+            <span class="notification-text">Notification</span>
+            <span class="dropdown-arrow">▼</span>
+          </a>
+          <div class="dropdown-content" id="notificationContent">
+            <div class="notification-item">
+              <span class="notif-title">New Announcement</span>
+              <span class="notif-desc">Welcome to CCS Sit-in System!</span>
+            </div>
+            <div class="notification-item">
+              <span class="notif-title">Session Update</span>
+              <span class="notif-desc">You have 5 sessions remaining</span>
+            </div>
+            <div class="notification-item">
+              <span class="notif-title">System Maintenance</span>
+              <span class="notif-desc">Scheduled maintenance this weekend</span>
+            </div>
+          </div>
+        </div>
+        <a href="#" class="nav-link active" data-section="home">Home</a>
+        <a href="#editprofile" class="nav-link" data-section="editprofile">Edit Profile</a>
+        <a href="#" class="nav-link" data-section="sitinsummary">Sit-In Summary</a>
+        <a href="#" class="nav-link" data-section="sessions">Sessions</a>
+        <a href="#" class="nav-link" data-section="history">History</a>
+        <a href="#" class="nav-link" data-section="leaderboard">Leaderboard</a>
+        <a href="#" class="nav-link" data-section="reservation">Reservation</a>
+        <button class="logout-btn" id="logoutBtn">Log Out</button>
+      </div>
+      
+      <button class="mobile-menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+      <!-- Home Section -->
+      <div id="homeSection" class="dashboard-section active">
+        <div class="dashboard-columns">
+          <!-- Student Information Column -->
+          <div class="column student-info-column">
+            <div class="column-header">
+              <h2>Student Information</h2>
+            </div>
+            <div class="student-info-content">
+              <!-- Profile Photo -->
+              <div class="profile-photo-section">
+                <div class="profile-photo">
+                  <img src="./images/2.jpg" alt="Profile Photo" id="profileImage" />
+                </div>
+              </div>
+              <div class="divider-line"></div>
+              
+              <!-- Student Details -->
+              <div class="student-details">
+                <div class="detail-item">
+                  <span class="detail-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="black"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
+                  <span class="detail-label">Name:</span>
+                  <span class="detail-value" id="studentName">Loading...</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="black"><path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82Z"/></svg></span>
+                  <span class="detail-label">Course:</span>
+                  <span class="detail-value" id="studentCourse">Loading...</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="black"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg></span>
+                  <span class="detail-label">Year:</span>
+                  <span class="detail-value" id="studentYear">Loading...</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="black"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></span>
+                  <span class="detail-label">Email:</span>
+                  <span class="detail-value" id="studentEmail">Loading...</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="black"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></span>
+                  <span class="detail-label">Address:</span>
+                  <span class="detail-value" id="studentAddress">Loading...</span>
+                </div>
+                <div class="detail-item sessions-item">
+                  <span class="detail-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="black"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></span>
+                  <span class="detail-label">Sessions:</span>
+                  <span class="detail-value sessions-value">
+                    <span class="clock-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="black"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></span>
+                    <span id="studentSessions">0</span> Sessions
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Announcement Column -->
+          <div class="column announcement-column">
+            <div class="column-header">
+              <h2><i class="fa-solid fa-bullhorn"></i> Announcement</h2>
+            </div>
+            <div class="announcement-content" id="announcementContainer">
+              <!-- Announcements will be loaded dynamically -->
+              <div class="announcement-item">
+                <div class="announcement-line">Loading announcements...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rules and Regulations Column -->
+          <div class="column rules-column">
+            <div class="column-header">
+              <h2>Rules and Regulations</h2>
+            </div>
+            <div class="rules-content">
+              <div class="rules-header">
+                <h3>University of Cebu</h3>
+                <h4>COLLEGE OF INFORMATION & COMPUTER STUDIES</h4>
+                <h5>LABORATORY RULES AND REGULATIONS</h5>
+                <p class="rules-intro">To avoid embarassment and maintain camaraderie with your friends and superior at our laboratories please observe the following:</p>
+              </div>
+              <div class="rule-item">
+                <span class="rule-number">1.</span>
+                <p>Maintain silence, proper decorum and discipline inside the laboratory. Mobile phones and other personal pieces of equipment must be switched off.</p>
+              </div>
+              <div class="rule-item">
+                <span class="rule-number">2.</span>
+                <p>Games are not allowed inside the lab. This includes computer-related games, card games and other games that may disturb the operation of the lab.</p>
+              </div>
+              <div class="rule-item">
+                <span class="rule-number">3.</span>
+                <p>Surfing the Internet is allowed only with the permission of the instructor. Downloading and installing of the software strictly prohibited.</p>
+              </div>
+            </div>
+          </div>
+</div>
+       </div>
+
+       <!-- Sit-In Summary Section -->
+       <div id="sitinsummarySection" class="dashboard-section" style="display: none;">
+         <div class="summary-container">
+           <div class="section-header">
+             <h2><i class="fa-solid fa-chart-bar"></i> Sit-In Summary</h2>
+           </div>
+           <div class="summary-content">
+             <div class="summary-cards">
+               <div class="summary-card">
+                 <div class="summary-icon">
+                   <i class="fa-solid fa-clock"></i>
+                 </div>
+                 <div class="summary-info">
+                   <h3>Total Sit-In Hours</h3>
+                   <p id="totalHours">0</p>
+                 </div>
+               </div>
+               <div class="summary-card">
+                 <div class="summary-icon">
+                   <i class="fa-solid fa-calendar-check"></i>
+                 </div>
+                 <div class="summary-info">
+                   <h3>Number of Sessions</h3>
+                   <p id="numSessions">0</p>
+                 </div>
+               </div>
+               <div class="summary-card">
+                 <div class="summary-icon">
+                   <i class="fa-solid fa-chart-line"></i>
+                 </div>
+                 <div class="summary-info">
+                   <h3>Average Session Duration</h3>
+                   <p id="avgDuration">0 min</p>
+                 </div>
+               </div>
+               <div class="summary-card">
+                 <div class="summary-icon">
+                   <i class="fa-solid fa-trophy"></i>
+                 </div>
+                 <div class="summary-info">
+                   <h3>Longest Session</h3>
+                   <p id="longestSession">0 min</p>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       <!-- Sessions Section -->
+       <div id="sessionsSection" class="dashboard-section" style="display: none;">
+         <div class="sessions-container">
+           <div class="section-header">
+             <h2><i class="fa-solid fa-desktop"></i> Sessions</h2>
+           </div>
+           <div class="sessions-content">
+             <div class="sessions-table-controls">
+               <div class="entries-control">
+                 <label>Show</label>
+                 <select id="sessionsEntriesSelect">
+                   <option value="10">10</option>
+                   <option value="25">25</option>
+                   <option value="50">50</option>
+                   <option value="100">100</option>
+                 </select>
+                 <label>Entries per page</label>
+               </div>
+               <div class="search-control">
+                 <label>Search:</label>
+                 <input type="text" id="sessionsTableSearch" placeholder="Search sessions..." />
+               </div>
+             </div>
+             <div class="sessions-table-container">
+               <table class="sessions-table">
+                 <thead>
+                   <tr>
+                     <th>Date</th>
+                     <th>Time In</th>
+                     <th>Time Out</th>
+                     <th>Duration</th>
+                     <th>PC No.</th>
+                     <th>Status</th>
+                   </tr>
+                 </thead>
+                 <tbody id="sessionsTableBody">
+                   <tr><td colspan="6" style="text-align: center; padding: 30px;">No sessions found</td></tr>
+                 </tbody>
+               </table>
+             </div>
+             <div class="table-footer">
+               <div class="showing-entries" id="sessionsShowingEntries">Showing 0 entries</div>
+             </div>
+           </div>
+</div>
+        </div>
+
+        <!-- Leaderboard Section -->
+       <div id="leaderboardSection" class="dashboard-section" style="display: none;">
+         <div class="leaderboard-container">
+           <div class="section-header">
+             <h2><i class="fa-solid fa-trophy"></i> Leaderboard</h2>
+           </div>
+           <div class="leaderboard-content">
+             <div class="leaderboard-table-container">
+               <table class="leaderboard-table">
+                 <thead>
+                   <tr>
+                     <th>Rank</th>
+                     <th>Name</th>
+                     <th>Course</th>
+                     <th>Total Hours</th>
+                     <th>Sessions</th>
+                   </tr>
+                 </thead>
+                 <tbody id="leaderboardTableBody">
+                   <tr><td colspan="5" style="text-align: center; padding: 30px;">Loading leaderboard...</td></tr>
+                 </tbody>
+               </table>
+             </div>
+           </div>
+         </div>
+       </div>
+
+        <!-- History Section -->
+      <div id="historySection" class="dashboard-section" style="display: none;">
+        <div class="history-container">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-clock-rotate-left"></i> Sit-In History</h2>
+          </div>
+          <div class="history-content">
+            <div class="history-table-controls">
+              <div class="entries-control">
+                <label>Show</label>
+                <select id="historyEntriesSelect">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+                <label>Entries per page</label>
+              </div>
+              <div class="search-control">
+                <label>Search:</label>
+                <input type="text" id="historyTableSearch" placeholder="Search history..." />
+              </div>
+            </div>
+            <div class="history-table-container">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Purpose</th>
+                    <th>Lab</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                  <!-- History data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <div class="showing-entries" id="historyShowingEntries">Showing 0 entries</div>
+              <div class="pagination" id="historyPagination"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservation Section -->
+      <div id="reservationSection" class="dashboard-section" style="display: none;">
+        <div class="reservation-container">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-calendar-check"></i> Make a Reservation</h2>
+          </div>
+          <div class="reservation-content">
+            <button class="reserve-btn" id="openReservationBtn">
+              <i class="fa-solid fa-plus"></i> New Reservation
+            </button>
+            <div class="reservations-list" id="reservationsList">
+              <!-- Reservations will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Profile</h2>
+          <span class="close-btn" id="closeModalBtn">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="editProfileForm">
+            <!-- Profile Photo in Edit Modal -->
+            <div class="edit-photo-section">
+              <div class="profile-photo">
+                <img src="./images/2.jpg" alt="Profile Photo" id="editProfileImage" />
+                <label for="editPhotoInput" class="change-photo-btn">
+                  <i class="fa-solid fa-camera"></i>
+                </label>
+              </div>
+              <input type="file" id="editPhotoInput" accept="image/*" style="display: none;" />
+            </div>
+            
+            <!-- Form Fields -->
+            <div class="form-group">
+              <label for="editFirstname">First Name</label>
+              <input type="text" id="editFirstname" name="firstname" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="editLastname">Last Name</label>
+              <input type="text" id="editLastname" name="lastname" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="editMiddlename">Middle Name</label>
+              <input type="text" id="editMiddlename" name="middlename" />
+            </div>
+            
+            <div class="form-group">
+              <label for="editCourse">Course</label>
+              <select id="editCourse" name="course" required>
+                <option value="BSCS">Bachelor of Science in Computer Science (BSCS)</option>
+                <option value="BSIT">Bachelor of Science in Information Technology (BSIT)</option>
+                <option value="BSAI">Bachelor of Science in Artificial Intelligence (BSAI)</option>
+                <option value="BSIS">Bachelor of Science in Information Systems (BSIS)</option>
+                <option value="BSDS">Bachelor of Science in Data Science (BSDS)</option>
+                <option value="BSCpE">Bachelor of Science in Computer Engineering (BSCpE)</option>
+                <option value="ACT">Associate in Computer Technology (ACT)</option>
+                <option value="DIT">Diploma in Information Technology (DIT)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="editCourseLevel">Year Level</label>
+              <select id="editCourseLevel" name="courseLevel" required>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="editEmail">Email</label>
+              <input type="email" id="editEmail" name="email" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="editAddress">Address</label>
+              <input type="text" id="editAddress" name="address" required />
+            </div>
+            
+            <div class="form-buttons">
+              <button type="button" class="cancel-btn" id="cancelEditBtn">Cancel</button>
+              <button type="submit" class="save-btn">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservation Modal -->
+    <div id="reservationModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fa-solid fa-calendar-plus"></i> New Reservation</h2>
+          <span class="close-btn" id="closeReservationModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="reservationForm">
+            <div class="form-group">
+              <label for="reserveLab">Select Laboratory</label>
+              <select id="reserveLab" name="lab" required>
+                <option value="">-- Select Laboratory --</option>
+                <option value="524">Lab 524</option>
+                <option value="526">Lab 526</option>
+                <option value="528">Lab 528</option>
+                <option value="542">Lab 542</option>
+                <option value="544">Lab 544</option>
+              </select>
+            </div>
+            
+            <div id="labSoftwareContainer" class="form-group" style="display: none; background: #f5f5f5; padding: 10px; border-radius: 5px;">
+              <label style="font-size: 12px; color: #666; margin-bottom: 5px;">Installed Software:</label>
+              <ul id="labSoftwareList" style="margin: 0; padding-left: 20px; font-size: 13px;"></ul>
+            </div>
+
+            <div class="form-group">
+              <label for="reservePcNumber">PC Number</label>
+              <select id="reservePcNumber" name="pcNumber" required>
+                <option value="">-- Select PC --</option>
+                <!-- Generated by JS -->
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="reservePurpose">Purpose</label>
+              <select id="reservePurpose" name="purpose" required>
+                <option value="">-- Select Purpose --</option>
+                <option value="Programming">Programming</option>
+                <option value="Research">Research</option>
+                <option value="Project Work">Project Work</option>
+                <option value="Study">Study</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="reserveDate">Date</label>
+              <input type="date" id="reserveDate" name="date" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="reserveTime">Time</label>
+              <input type="time" id="reserveTime" name="time" required />
+            </div>
+            
+            <div class="form-buttons">
+              <button type="button" class="cancel-btn" id="cancelReservationBtn">Cancel</button>
+              <button type="submit" class="submit-btn">Submit Request</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fa-solid fa-comment-dots"></i> Share Feedback</h2>
+          <span class="close-btn" id="closeFeedbackModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="feedbackForm">
+            <div class="form-group">
+              <label for="feedbackRating">Rating</label>
+              <div class="rating-stars">
+                <span class="star" data-rating="1">&#9733;</span>
+                <span class="star" data-rating="2">&#9733;</span>
+                <span class="star" data-rating="3">&#9733;</span>
+                <span class="star" data-rating="4">&#9733;</span>
+                <span class="star" data-rating="5">&#9733;</span>
+              </div>
+              <input type="hidden" id="feedbackRating" name="rating" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="feedbackComment">Comment</label>
+              <textarea id="feedbackComment" name="comment" rows="4" placeholder="Share your experience..."></textarea>
+            </div>
+            
+            <div class="form-buttons">
+              <button type="button" class="cancel-btn" id="cancelFeedbackBtn">Cancel</button>
+              <button type="submit" class="submit-btn">Submit Feedback</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="profile.js"></script>
+  </body>
+</html>

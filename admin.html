@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="admin.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <title>CCS Admin - College of Computer Studies</title>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="admin-nav">
+      <div class="nav-logo">
+        <img src="./images/uclogono.png" alt="UC Logo" class="logo-img" />
+        <div class="logo-text">
+          <span class="college-name">College of Computer Studies</span>
+          <span class="admin-label">Admin</span>
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="#" class="nav-link" id="homeLink">Home</a>
+        <a href="#" class="nav-link" id="searchLink">Search</a>
+        <a href="#" class="nav-link" id="studentsLink">Students</a>
+        <a href="#" class="nav-link" id="sitinLink">Sit-In</a>
+        <a href="#" class="nav-link" id="viewSitInRecordsLink">View Sit-in Records</a>
+        <a href="#" class="nav-link" id="sitinReportsLink">Sit-In Reports</a>
+        <a href="#" class="nav-link" id="feedbackReportsLink">Feedback Reports</a>
+        <a href="#" class="nav-link" id="reservationLink">Reservation</a>
+        <a href="#" class="nav-link" id="healthMonitorLink">Lab Health</a>
+        <a href="#" class="nav-link" id="settingsLink">Settings</a>
+        <button id="logoutBtn" class="logout-btn">Log Out</button>
+      </div>
+
+      <button class="mobile-menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Bottom Section with 2 Columns -->
+      <div class="bottom-section">
+        <!-- First Column: Statistics -->
+        <div class="column statistics-column">
+          <div class="card-header">
+            <h2>Laboratory & Activity Analytics</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label">Students Registered:</span>
+              <span class="stat-value" id="studentsRegistered">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Currently Sit In:</span>
+              <span class="stat-value" id="currentlySitIn">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Sit-In:</span>
+              <span class="stat-value" id="totalSitIn">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Most Used Lab:</span>
+              <span class="stat-value" id="mostUsedLab">N/A</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Most Used Purpose:</span>
+              <span class="stat-value" id="mostUsedPurpose">N/A</span>
+            </div>
+          </div>
+
+          <!-- Language Graph -->
+          <div class="language-graph">
+            <div class="radar-legend" id="radarLegend"></div>
+            <canvas id="languageRadarChart" width="300" height="300"></canvas>
+          </div>
+        </div>
+
+        <!-- Second Column: Announcement -->
+        <div class="column announcement-column">
+          <div class="card-header announcement-header">
+            <span class="announcement-icon"><i class="fa-solid fa-bullhorn"></i></span>
+            <h2>Announcement</h2>
+          </div>
+
+          <div class="new-assignment">
+            <h3>New Assignment</h3>
+          </div>
+
+          <!-- Post Announcement Form -->
+          <div class="post-announcement">
+            <textarea 
+              id="announcementContent" 
+              placeholder="Post your announcement here..."
+              rows="4"
+            ></textarea>
+            <button id="submitAnnouncement" class="submit-btn">Submit</button>
+          </div>
+
+          <!-- Posted Announcements -->
+          <div class="posted-announcements">
+            <h3>Posted Announcements</h3>
+            <div id="announcementsList" class="announcements-list">
+              <!-- Announcements will be loaded here -->
+              <div class="no-announcements">No announcements yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Search Student Modal -->
+    <div id="searchStudentModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Search Student</h2>
+          <span class="close-modal" id="closeSearchModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="searchStudentId">Student ID Number</label>
+            <input type="text" id="searchStudentId" placeholder="Search..." />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="searchStudentBtn" class="search-btn">Search</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sit-In Form Modal -->
+    <div id="sitinModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Sit In Form</h2>
+          <span class="close-modal" id="closeSitInModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="sitinIdNumber">ID Number</label>
+            <input type="text" id="sitinIdNumber" placeholder="Enter ID Number" />
+          </div>
+          <div class="form-group">
+            <label for="sitinStudentName">Student Name</label>
+            <input type="text" id="sitinStudentName" placeholder="Student Name" readonly />
+          </div>
+          <div class="form-group">
+            <label for="sitinPurpose">Purpose</label>
+            <select id="sitinPurpose">
+              <option value="">Select Language</option>
+              <option value="C Programming">C Programming</option>
+              <option value="C++">C++</option>
+              <option value="Java">Java</option>
+              <option value="Python">Python</option>
+              <option value="C#">C#</option>
+              <option value="ASP.Net">ASP.Net</option>
+              <option value="PHP">PHP</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sitinLab">Lab</label>
+            <input type="text" id="sitinLab" placeholder="Enter Lab/Room Number (e.g., 524)" />
+          </div>
+          <div class="form-group">
+            <label for="sitinPcNumber">PC Number</label>
+            <select id="sitinPcNumber">
+              <option value="">Select PC</option>
+              <!-- PC options 1-49 will be generated by JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sitinRemainingSessions">Remaining Sessions</label>
+            <input type="text" id="sitinRemainingSessions" placeholder="Remaining Sessions" readonly />
+          </div>
+        </div>
+        <div class="modal-footer sitin-footer">
+          <button id="closeSitInBtn" class="cancel-btn">Close</button>
+          <button id="sitinSubmitBtn" class="search-btn">Sit In</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Information Section -->
+    <div id="studentInfoSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center">
+        <h2>Student Information</h2>
+      </div>
+      <div class="student-info-content">
+        <div class="student-actions">
+          <button id="addStudentBtn" class="action-btn add-btn">Add Student</button>
+          <button id="resetSessionsBtn" class="action-btn reset-btn">Reset All Sessions</button>
+        </div>
+        <div class="student-table-controls">
+          <div class="entries-control">
+            <label>Show</label>
+            <select id="entriesSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <label>Entries per page</label>
+          </div>
+          <div class="search-control">
+            <label>Search:</label>
+            <input type="text" id="studentTableSearch" placeholder="Search students..." />
+          </div>
+        </div>
+        <div class="student-table-container">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th>ID Number</th>
+                <th>Name</th>
+                <th>Year Level</th>
+                <th>Course</th>
+                <th>Remaining Sessions</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody">
+              <!-- Student data will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Sit-in Records Section -->
+    <div id="viewSitInRecordsSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center">
+        <h2>All Sit-In Records</h2>
+      </div>
+      <div class="student-info-content">
+        <div class="student-table-controls">
+          <div class="entries-control">
+            <label>Show</label>
+            <select id="sitinEntriesSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <label>Entries per page</label>
+          </div>
+          <div class="search-control">
+            <label>Search:</label>
+            <input type="text" id="sitinTableSearch" placeholder="Search records..." />
+          </div>
+        </div>
+        <div class="student-table-container">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th>Sit ID Number</th>
+                <th>ID Number</th>
+                <th>Name</th>
+                <th>Purpose</th>
+                <th>Lab</th>
+                <th>Session</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sitinTableBody">
+              <!-- Sit-in records will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="showing-entries" id="sitinShowingEntries">
+            Showing 0 to 0 of 0 entries
+          </div>
+          <div class="pagination">
+            <button class="pagination-btn" onclick="goToFirstPage()">&laquo;&laquo;</button>
+            <button class="pagination-btn" onclick="goToPrevPage()">&laquo;</button>
+            <span class="pagination-page" id="sitinCurrentPage">1</span>
+            <button class="pagination-btn" onclick="goToNextPage()">&raquo;</button>
+            <button class="pagination-btn" onclick="goToLastPage()">&raquo;&raquo;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Sit-In Section (Active Students) -->
+    <div id="currentSitInSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center">
+        <h2><i class="fa-solid fa-users"></i> Current Sit-In Students</h2>
+      </div>
+      <div class="student-info-content">
+        <div class="student-table-controls">
+          <div class="entries-control">
+            <label>Show</label>
+            <select id="currentSitinEntriesSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <label>Entries per page</label>
+          </div>
+          <div class="search-control">
+            <label>Search:</label>
+            <input type="text" id="currentSitinTableSearch" placeholder="Search current sit-ins..." />
+          </div>
+        </div>
+        <div class="student-table-container">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th>Sit ID</th>
+                <th>ID Number</th>
+                <th>Name</th>
+                <th>Purpose</th>
+                <th>Lab</th>
+                <th>Time In</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="currentSitinTableBody">
+              <!-- Current sit-in students will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="showing-entries" id="currentSitinShowingEntries">
+            Showing 0 to 0 of 0 entries
+          </div>
+          <div class="pagination">
+            <button class="pagination-btn" onclick="goToCurrentSitInFirstPage()">&laquo;&laquo;</button>
+            <button class="pagination-btn" onclick="goToCurrentSitInPrevPage()">&laquo;</button>
+            <span class="pagination-page" id="currentSitinCurrentPage">1</span>
+            <button class="pagination-btn" onclick="goToCurrentSitInNextPage()">&raquo;</button>
+            <button class="pagination-btn" onclick="goToCurrentSitInLastPage()">&raquo;&raquo;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sit-In Reports Section -->
+    <div id="sitinReportsSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center">
+        <h2><i class="fa-solid fa-chart-line"></i> Sit-In Reports</h2>
+      </div>
+      <div class="student-info-content">
+        <!-- Search and Filter Controls -->
+        <div class="reports-controls">
+          <div class="search-student-control">
+            <label>Search Student:</label>
+            <input type="text" id="reportStudentSearch" placeholder="Search by name or ID..." />
+          </div>
+          <div class="date-filter-control">
+            <label>From:</label>
+            <input type="date" id="reportDateFrom" />
+            <label>To:</label>
+            <input type="date" id="reportDateTo" />
+          </div>
+          <div class="filter-actions">
+            <button id="applyFilterBtn" class="filter-btn">
+              <i class="fa-solid fa-filter"></i> Apply Filter
+            </button>
+            <button id="resetFilterBtn" class="reset-btn">
+              <i class="fa-solid fa-rotate-left"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="export-controls">
+          <button id="exportCSVBtn" class="export-btn export-csv">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+          </button>
+          <button id="exportPDFBtn" class="export-btn export-pdf">
+            <i class="fa-solid fa-file-pdf"></i> Export PDF
+          </button>
+          <button id="exportExcelBtn" class="export-btn export-excel">
+            <i class="fa-solid fa-file-excel"></i> Export Excel
+          </button>
+          <button id="printReportBtn" class="export-btn export-print">
+            <i class="fa-solid fa-print"></i> Print
+          </button>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="student-table-controls">
+          <div class="entries-control">
+            <label>Show</label>
+            <select id="reportEntriesSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <label>Entries per page</label>
+          </div>
+          <div class="showing-entries" id="reportTotalRecords">
+            Total: 0 records
+          </div>
+        </div>
+        <div class="student-table-container">
+          <table class="student-table" id="sitinReportsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>ID Number</th>
+                <th>Purpose</th>
+                <th>Laboratory</th>
+                <th>Login</th>
+                <th>Logout</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="sitinReportsTableBody">
+              <!-- Reports data will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="showing-entries" id="reportShowingEntries">
+            Showing 0 to 0 of 0 entries
+          </div>
+          <div class="pagination">
+            <button class="pagination-btn" onclick="goToReportFirstPage()">&laquo;&laquo;</button>
+            <button class="pagination-btn" onclick="goToReportPrevPage()">&laquo;</button>
+            <span class="pagination-page" id="reportCurrentPage">1</span>
+            <button class="pagination-btn" onclick="goToReportNextPage()">&raquo;</button>
+            <button class="pagination-btn" onclick="goToReportLastPage()">&raquo;&raquo;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Reports Section -->
+    <div id="feedbackReportsSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center">
+        <h2><i class="fa-solid fa-comments"></i> Feedback Reports</h2>
+      </div>
+      <div class="student-info-content">
+        <!-- Search and Filter Controls -->
+        <div class="reports-controls">
+          <div class="search-student-control">
+            <label>Search Student:</label>
+            <input type="text" id="feedbackStudentSearch" placeholder="Search by name or ID..." />
+          </div>
+          <div class="date-filter-control">
+            <label>From:</label>
+            <input type="date" id="feedbackDateFrom" />
+            <label>To:</label>
+            <input type="date" id="feedbackDateTo" />
+          </div>
+          <div class="filter-actions">
+            <button id="applyFeedbackFilterBtn" class="filter-btn">
+              <i class="fa-solid fa-filter"></i> Apply Filter
+            </button>
+            <button id="resetFeedbackFilterBtn" class="reset-btn">
+              <i class="fa-solid fa-rotate-left"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="export-controls">
+          <button id="exportFeedbackCSVBtn" class="export-btn export-csv">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+          </button>
+          <button id="exportFeedbackPDFBtn" class="export-btn export-pdf">
+            <i class="fa-solid fa-file-pdf"></i> Export PDF
+          </button>
+          <button id="exportFeedbackExcelBtn" class="export-btn export-excel">
+            <i class="fa-solid fa-file-excel"></i> Export Excel
+          </button>
+          <button id="printFeedbackReportBtn" class="export-btn export-print">
+            <i class="fa-solid fa-print"></i> Print
+          </button>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="student-table-controls">
+          <div class="entries-control">
+            <label>Show</label>
+            <select id="feedbackEntriesSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <label>Entries per page</label>
+          </div>
+          <div class="showing-entries" id="feedbackTotalRecords">
+            Total: 0 records
+          </div>
+        </div>
+        <div class="student-table-container">
+          <table class="student-table" id="feedbackReportsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Lab</th>
+                <th>Purpose</th>
+                <th>Rating</th>
+                <th>Comments</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="feedbackReportsTableBody">
+              <!-- Feedback data will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="showing-entries" id="feedbackShowingEntries">
+            Showing 0 to 0 of 0 entries
+          </div>
+          <div class="pagination">
+            <button class="pagination-btn" onclick="goToFeedbackFirstPage()">&laquo;&laquo;</button>
+            <button class="pagination-btn" onclick="goToFeedbackPrevPage()">&laquo;</button>
+            <span class="pagination-page" id="feedbackCurrentPage">1</span>
+            <button class="pagination-btn" onclick="goToFeedbackNextPage()">&raquo;</button>
+            <button class="pagination-btn" onclick="goToFeedbackLastPage()">&raquo;&raquo;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservations Section -->
+    <div id="reservationSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center">
+        <h2><i class="fa-solid fa-calendar-check"></i> Student Reservations</h2>
+      </div>
+      <div class="student-info-content">
+        <!-- Filter Controls -->
+        <div class="reports-controls">
+          <div class="search-student-control">
+            <label>Search Student:</label>
+            <input type="text" id="reservationStudentSearch" placeholder="Search by name or ID..." />
+          </div>
+          <div class="filter-control">
+            <label>Status:</label>
+            <select id="reservationStatusFilter">
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button id="applyReservationFilterBtn" class="filter-btn">
+              <i class="fa-solid fa-filter"></i> Apply Filter
+            </button>
+            <button id="resetReservationFilterBtn" class="reset-btn">
+              <i class="fa-solid fa-rotate-left"></i> Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Reservations Table -->
+        <div class="student-table-controls">
+          <div class="entries-control">
+            <label>Show</label>
+            <select id="reservationEntriesSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <label>Entries per page</label>
+          </div>
+          <div class="showing-entries" id="reservationTotalRecords">
+            Total: 0 records
+          </div>
+        </div>
+        <div class="student-table-container">
+          <table class="student-table" id="reservationsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>ID Number</th>
+                <th>Lab</th>
+                <th>Purpose</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reservationsTableBody">
+              <!-- Reservations will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="showing-entries" id="reservationShowingEntries">
+            Showing 0 to 0 of 0 entries
+          </div>
+          <div class="pagination">
+            <button class="pagination-btn" onclick="goToReservationFirstPage()">&laquo;&laquo;</button>
+            <button class="pagination-btn" onclick="goToReservationPrevPage()">&laquo;</button>
+            <span class="pagination-page" id="reservationCurrentPage">1</span>
+            <button class="pagination-btn" onclick="goToReservationNextPage()">&raquo;</button>
+            <button class="pagination-btn" onclick="goToReservationLastPage()">&raquo;&raquo;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laboratory Health Monitor Section -->
+    <div id="healthMonitorSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center">
+        <h2><i class="fa-solid fa-desktop"></i> Laboratory Health Monitor</h2>
+      </div>
+      <div class="student-info-content">
+        <div class="reports-controls">
+          <div class="filter-control">
+            <label>Select Lab:</label>
+            <select id="healthMonitorLabSelect">
+              <option value="524">Lab 524</option>
+              <option value="526">Lab 526</option>
+              <option value="528">Lab 528</option>
+              <option value="542">Lab 542</option>
+              <option value="544">Lab 544</option>
+            </select>
+          </div>
+          <div class="filter-actions">
+            <button id="refreshHealthMonitorBtn" class="filter-btn">
+              <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div class="legend-container" style="margin-bottom: 20px; display: flex; gap: 20px;">
+          <div><i class="fa-solid fa-desktop" style="color: #4CAF50;"></i> Available</div>
+          <div><i class="fa-solid fa-desktop" style="color: #F44336;"></i> Occupied</div>
+        </div>
+        <div id="pcGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 800px; margin: 0 auto;">
+          <!-- PCs will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div id="settingsSection" class="student-info-section" style="display: none;">
+      <div class="section-header section-header-center">
+        <h2><i class="fa-solid fa-gear"></i> Settings & Management</h2>
+      </div>
+      <div class="student-info-content" style="display: flex; flex-direction: column; gap: 30px;">
+        
+        <!-- Reservation Settings -->
+        <div class="settings-card" style="padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h3>Global Settings</h3>
+          <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+            <label class="switch">
+              <input type="checkbox" id="enableReservationsToggle">
+              <span class="slider round"></span>
+            </label>
+            <span>Enable Student Reservations</span>
+          </div>
+        </div>
+
+        <!-- Software Management -->
+        <div class="settings-card" style="padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h3>Lab Software Management</h3>
+          <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <select id="softwareLabSelect" style="padding: 8px;">
+              <option value="524">Lab 524</option>
+              <option value="526">Lab 526</option>
+              <option value="528">Lab 528</option>
+              <option value="542">Lab 542</option>
+              <option value="544">Lab 544</option>
+            </select>
+            <input type="text" id="softwareNameInput" placeholder="Software Name (e.g. Visual Studio Code)" style="padding: 8px; flex: 1;" />
+            <button id="addSoftwareBtn" class="action-btn add-btn">Add Software</button>
+          </div>
+          <div style="margin-top: 20px;">
+            <h4>Installed Software</h4>
+            <ul id="softwareList" style="list-style: none; padding: 0;">
+              <!-- Software items loaded here -->
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <style>
+      .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+      .switch input { opacity: 0; width: 0; height: 0; }
+      .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+      .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+      input:checked + .slider { background-color: #2196F3; }
+      input:checked + .slider:before { transform: translateX(26px); }
+      .slider.round { border-radius: 34px; }
+      .slider.round:before { border-radius: 50%; }
+    </style>
+
+    <script src="admin.js"></script>
+  </body>
+</html>
