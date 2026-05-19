@@ -966,8 +966,6 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Export the app for Vercel serverless functions
-module.exports = app;
 
 // Lab Software APIs
 app.get('/api/lab-software', async (req, res) => {
@@ -1053,3 +1051,6 @@ app.post('/api/admin/disabled-pcs/toggle', authenticateAdmin, async (req, res) =
     res.status(500).json({ success: false, message: 'Server error toggling PC status' });
   }
 });
+
+// Export the app for Vercel serverless functions
+module.exports = app;
