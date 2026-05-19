@@ -3,13 +3,20 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Create database connection
+// Create database connection with fallback
+const dbUrl = process.env.TURSO_DATABASE_URL || 'file:ccs_database.db';
+const dbAuthToken = process.env.TURSO_AUTH_TOKEN || '';
+
 const db = createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
+  url: dbUrl,
+  authToken: dbAuthToken,
 });
 
-console.log('Connected to Turso database');
+if (dbUrl.startsWith('file:')) {
+  console.log('Connected to local SQLite file database');
+} else {
+  console.log('Connected to Turso cloud database');
+}
 initializeDatabase();
 
 // Initialize database tables
